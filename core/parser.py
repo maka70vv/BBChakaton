@@ -13,9 +13,9 @@ import locale
 
 def parse_data():
     edge_options = Options()
-    edge_options.add_argument("--window-size=1920x1080")
-    browser = webdriver.Edge()
-    browser.implicitly_wait(2)
+    edge_options.add_argument("--window-size=1910x1080")
+    browser = webdriver.Firefox()
+    browser.implicitly_wait(10)
     current_page = 1
 
     browser.get("https://zakupki.okmot.kg/popp/view/order/list.xhtml")
@@ -23,7 +23,8 @@ def parse_data():
     td_elements = browser.find_elements(By.XPATH, '//td[@role="gridcell"]/span[@class="nameTender"]')
 
 
-    while len(td_elements) % 10 <= 1:
+    while len(td_elements) > 0 :
+        print("Chlen")
         for i in range(len(td_elements)):
             try:
                 td_elements = browser.find_elements(By.XPATH, '//td[@role="gridcell"]/span[@class="nameTender"]')
@@ -84,6 +85,18 @@ def parse_data():
                 )
                 tender_srok = int(tender_srok_element.text.strip())
 
+                letter_element = WebDriverWait(browser, 10).until(
+                    EC.element_to_be_clickable(
+                        (By.XPATH,
+                         '//div[@class="container-content"]/div[@class="row"]/'
+                         'div[@class="col-12 col-md-6"][position()=18]/span[@class="text"]/a'))
+                )
+                WebDriverWait(browser, 10).until(
+                    lambda driver: len(letter_element.text.strip()) > 0
+                )
+                letter = letter_element.text.strip()
+                letter_url = letter_element.get_attribute("href")
+
                 locale.setlocale(locale.LC_TIME, 'ru_RU.utf8')
 
                 months_dict = {
@@ -110,10 +123,23 @@ def parse_data():
                 )
                 tender_start_time_str = tender_start_time_element.text.strip()
 
+
                 for month_name, month_number in months_dict.items():
                     tender_start_time_str = tender_start_time_str.replace(month_name, month_number)
+                print(tender_start_time_str)
+                new_tender_start_time_str = tender_start_time_str[6:10]
+                new_tender_start_time_str += " " + tender_start_time_str[3:5]
+                new_tender_start_time_str += " " + tender_start_time_str[0:2]
+                new_tender_start_time_str += " "+ tender_start_time_str[11:13]
+                new_tender_start_time_str += " " +tender_start_time_str[14:16]
+                print(new_tender_start_time_str)
+                time_elements = new_tender_start_time_str.split()
+                print(time_elements)
+                new_tender_start_time_str = f"{time_elements[0]}-{time_elements[1]}-{time_elements[2]} {time_elements[3]}:{time_elements[4]}"
+                # print(new_tender_start_time_str)
+                start_time = datetime.strptime(new_tender_start_time_str, '%Y-%m-%d %H:%M').strftime('%Y-%m-%d %H:%M')
+                print(start_time)
 
-                start_time = datetime.strptime(tender_start_time_str, '%d %m %Y %H:%M').strftime('%d %B %Y %H:%M')
 
                 tender_end_time_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
@@ -126,8 +152,16 @@ def parse_data():
 
                 for month_name, month_number in months_dict.items():
                     tender_end_time_str = tender_end_time_str.replace(month_name, month_number)
+                new_tender_end_time_str = tender_start_time_str[6:10]
+                new_tender_end_time_str += " " + tender_start_time_str[3:5]
+                new_tender_end_time_str += " " + tender_start_time_str[0:2]
+                new_tender_end_time_str += " " + tender_start_time_str[11:13]
+                new_tender_end_time_str += " " + tender_start_time_str[14:16]
+                time_elements = new_tender_end_time_str.split()
 
-                end_time = datetime.strptime(tender_end_time_str, '%d %m %Y %H:%M').strftime('%d %B %Y %H:%M')
+                new_tender_end_time_str = f"{time_elements[0]}-{time_elements[1]}-{time_elements[2]} {time_elements[3]}:{time_elements[4]}"
+                end_time = datetime.strptime(new_tender_end_time_str, '%Y-%m-%d %H:%M').strftime('%Y-%m-%d %H:%M')
+
 
                 organization_name_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
@@ -152,25 +186,14 @@ def parse_data():
                 organization_address_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
                         (By.XPATH,
-                         '//div[@class="container-content"][position()=2]/'
+                         '//div[@class="container-content"][position()=2]/div[@class="row"]/'
                          'div[@class="col-12 col-md-6"][position()=2]/span[@class="text"]'))
                 )
                 WebDriverWait(browser, 10).until(
                     lambda driver: len(organization_address_element.text.strip()) > 0
                 )
                 organization_address = organization_address_element.text.strip()
-
-                letter_element = WebDriverWait(browser, 10).until(
-                    EC.element_to_be_clickable(
-                        (By.XPATH,
-                         '//div[@class="container-content"][position()=1]/'
-                         'div[@class="col-12 col-md-6"][position()=19]/span[@class="text"]'))
-                )
-                WebDriverWait(browser, 10).until(
-                    lambda driver: len(letter_element.text.strip()) > 0
-                )
-                letter = letter_element.text.strip()
-                letter_url = letter_element.get_attribute("href")
+                print(organization_address)
 
                 lots = browser.find_elements(By.XPATH, '//div[@class="container-content"][position()=3]')
                 lot_info = []
@@ -215,7 +238,7 @@ def parse_data():
 
                     moreInfo=info_url
                 )
-
+                print("USE")
                 time.sleep(0.1)
                 browser.get(f"https://zakupki.okmot.kg/popp/view/order/list.xhtml?first={current_page * 10}")
             except StaleElementReferenceException:
@@ -233,4 +256,3 @@ def parse_data():
         next_page_button.click()
 
     browser.quit()
-
