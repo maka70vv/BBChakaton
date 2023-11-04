@@ -41,8 +41,8 @@ class TendersList(models.Model):
     organizationAddress = models.CharField(max_length=500)
 
     dateTimeStart = models.DateTimeField()
-    dateTimeEnd = models.DateTimeField()
-    letterFile = models.URLField()
+    dateTimeEnd = models.DateTimeField(null=True)
+    letterFile = models.URLField(null=True)
     letterName = models.CharField(max_length=200, null=True)
 
     lotsInfo = models.TextField(null=True)
@@ -53,18 +53,25 @@ class TendersList(models.Model):
     dislikes = models.PositiveIntegerField(default=0, null=True)
 
     def save(self, *args, **kwargs):
+        current_time = timezone.now()
+
+        if self.dateTimeEnd < current_time and self.dateTimeEnd:
+            # Если время окончания тендера раньше текущего времени, удаляем объект
+            self.delete()
+            return
         if not self.company_info:
             # Ищем компанию по имени
-            existing_company = companies.models.CompanyInfo.objects.filter(companyName=self.organizationName).first()
+            company_info, created = companies.models.CompanyInfo.objects.get_or_create(
+                companyName=self.organizationName)
 
-            if existing_company:
-                # Если компания существует, используем ее
-                self.company_info = existing_company
-            else:
-                # Если компания не существует, создаем новую
-                new_company_info = companies.models.CompanyInfo(companyName=self.organizationName)
-                new_company_info.save()
-                self.company_info = new_company_info
+            # if existing_company:
+            #     # Если компания существует, используем ее
+            #     self.company_info = existing_company
+            # else:
+            #     # Если компания не существует, создаем новую
+            #     new_company_info = companies.models.CompanyInfo(companyName=self.organizationName)
+            #     new_company_info.save()
+            #     self.company_info = new_company_info
 
         companies.models.CompanyInfo.update_likes_dislikes_by_company_name(self.organizationName, self.likes,
                                                                            self.dislikes)

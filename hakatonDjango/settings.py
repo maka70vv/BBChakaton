@@ -131,7 +131,7 @@ REST_FRAMEWORK = {
 
 LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'Asia/Bishkek'
+TIME_ZONE = 'Asia/Almaty'
 
 USE_I18N = True
 
