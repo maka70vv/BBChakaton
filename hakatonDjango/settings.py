@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'parser',
     'corsheaders',
     'django_celery_beat',
+    'companies',
 ]
 
 MIDDLEWARE = [
