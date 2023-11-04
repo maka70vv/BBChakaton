@@ -1,10 +1,11 @@
 from django.db import models
-import companies.models
+
 
 class CompanyInfo(models.Model):
     companyName = models.CharField(max_length=500)
     likes = models.PositiveIntegerField(default=0)
     dislikes = models.PositiveIntegerField(default=0)
+    rating = models.IntegerField(default=0)
 
     def update_likes_dislikes(self, likes, dislikes):
         self.likes += likes

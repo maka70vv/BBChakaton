@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'taggit',
     'taggit_serializer',
-    'parser',
     'corsheaders',
     'django_celery_beat',
     'companies',

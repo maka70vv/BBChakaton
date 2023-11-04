@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post
+from .models import Post, TendersList
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 from django.contrib.auth.models import User
 from taggit.models import Tag
@@ -57,6 +57,12 @@ class TagSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'url': {'lookup_field': 'name'}
         }
+
+
+class TenderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TendersList
+        fields = '__all__'
 
 
 class ContactSerailizer(serializers.Serializer):

@@ -1,10 +1,13 @@
 from django.core.mail import send_mail
+from django.http import HttpResponse
 from rest_framework import viewsets, filters
 from rest_framework import permissions
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 
-from .serializers import PostSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer
-from .models import Post
+from .serializers import PostSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer, \
+    TenderSerializer
+from .models import Post, TendersList
 from rest_framework.response import Response
 from rest_framework import pagination
 from rest_framework import generics
@@ -73,6 +76,26 @@ class AsideView(generics.ListAPIView):
     queryset = Post.objects.all().order_by('-id')[:5]
     serializer_class = PostSerializer
     permission_classes = [permissions.AllowAny]
+
+
+def like_tender(request, tender_id):
+    tender = TendersList.objects.get(pk=tender_id)
+    tender.likes += 1
+    tender.save()
+    return HttpResponse(status=200)
+
+
+def dislike_tender(request, tender_id):
+    tender = TendersList.objects.get(pk=tender_id)
+    tender.dislikes += 1
+    tender.save()
+    return HttpResponse(status=200)
+
+
+class TendersListView(ListAPIView):
+    queryset = TendersList.objects.all()
+    serializer_class = TenderSerializer
+
 
 
 class FeedBackView(APIView):
