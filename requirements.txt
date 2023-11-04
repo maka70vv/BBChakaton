@@ -1,0 +1,13 @@
+Django==3.2.10
+djangorestframework==3.12.4
+selenium==3.141.0
+django-celery-beat==2.2.1
+python-dateutil==2.8.2
+pytz==2021.3
+msedge-selenium-tools==3.141.2
+djangorestframework-simplejwt==4.9.0
+django-ckeditor==6.1.0
+django-ckeditor-filebrowser==5.5.0
+django-taggit==1.3.0
+django-taggit-serializer==0.17.0
+celery==5.2.3
