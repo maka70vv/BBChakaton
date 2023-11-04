@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-^oki*8zwvbya$j#3i^zc)5w60du-0dbcn0ct-d90qy!n&bqx63
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['makarovv25.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'taggit',
     'taggit_serializer',
     'parser',
+    'corsheaders',
     'django_celery_beat',
 ]
 
@@ -98,17 +99,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'zakupki',
-#         'USER': 'root',
-#         'PASSWORD': '123',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

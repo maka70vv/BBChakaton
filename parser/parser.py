@@ -12,8 +12,8 @@ import locale
 
 
 def parse_data():
-    # edge_options = Options()
-    # edge_options.add_argument("--headless")
+    edge_options = Options()
+    edge_options.add_argument("--window-size=1920x1080")
     browser = webdriver.Edge()
     browser.implicitly_wait(2)
     current_page = 1
@@ -40,6 +40,7 @@ def parse_data():
                     lambda driver: len(tender_num_element.text.strip()) > 0
                 )
                 tender_num = int(tender_num_element.text.strip())
+                print(tender_num)
                 if TendersList.objects.filter(tenderNum=tender_num).exists():
                     browser.close()
 
@@ -64,12 +65,15 @@ def parse_data():
 
                 tender_summ_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
-                        (By.XPATH, '//div[@class="col-12 col-md-6" and position()=5]/span[@class="text"]'))
+                        (By.XPATH, '//div[@class="col-12 col-md-6" and position()=6]/span[@class="text"]'))
                 )
                 WebDriverWait(browser, 10).until(
                     lambda driver: len(tender_summ_element.text.strip()) > 0
                 )
-                tender_summ = int(tender_summ_element.text.strip())
+                tender_summ_text = tender_summ_element.text.replace(" ", "")
+                if ',' in tender_summ_text:
+                    tender_summ_text = tender_summ_text.split(',')[0]
+                tender_summ = int(tender_summ_text)
 
                 tender_srok_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
@@ -81,6 +85,22 @@ def parse_data():
                 tender_srok = int(tender_srok_element.text.strip())
 
                 locale.setlocale(locale.LC_TIME, 'ru_RU.utf8')
+
+                months_dict = {
+                    'января': '01',
+                    'февраля': '02',
+                    'марта': '03',
+                    'апреля': '04',
+                    'мая': '05',
+                    'июня': '06',
+                    'июля': '07',
+                    'августа': '08',
+                    'сентября': '09',
+                    'октября': '10',
+                    'ноября': '11',
+                    'декабря': '12',
+                }
+
                 tender_start_time_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
                         (By.XPATH, '//div[@class="col-12 col-md-6" and position()=7]/span[@class="text"]'))
@@ -88,6 +108,13 @@ def parse_data():
                 WebDriverWait(browser, 10).until(
                     lambda driver: len(tender_start_time_element.text.strip()) > 0
                 )
+                tender_start_time_str = tender_start_time_element.text.strip()
+
+                for month_name, month_number in months_dict.items():
+                    tender_start_time_str = tender_start_time_str.replace(month_name, month_number)
+
+                start_time = datetime.strptime(tender_start_time_str, '%d %m %Y %H:%M').strftime('%d %B %Y %H:%M')
+
                 tender_end_time_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
                         (By.XPATH, '//div[@class="col-12 col-md-6" and position()=8]/span[@class="text"]'))
@@ -95,8 +122,12 @@ def parse_data():
                 WebDriverWait(browser, 10).until(
                     lambda driver: len(tender_end_time_element.text.strip()) > 0
                 )
-                start_time = datetime.strptime(tender_start_time_element, '%d %B %Y %H:%M')
-                end_time = datetime.strptime(tender_end_time_element, '%d %B %Y %H:%M')
+                tender_end_time_str = tender_end_time_element.text.strip()
+
+                for month_name, month_number in months_dict.items():
+                    tender_end_time_str = tender_end_time_str.replace(month_name, month_number)
+
+                end_time = datetime.strptime(tender_end_time_str, '%d %m %Y %H:%M').strftime('%d %B %Y %H:%M')
 
                 organization_name_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
@@ -110,7 +141,7 @@ def parse_data():
                 organization_phone_element = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(
                         (By.XPATH,
-                         '//div[@class="container-content"][position()=2]/'
+                         '//div[@class="container-content"][position()=2]/div[@class="row"]/'
                          'div[@class="col-12 col-md-6"][position()=3]/span[@class="text"]'))
                 )
                 WebDriverWait(browser, 10).until(
