@@ -1,6 +1,7 @@
 from django.db import models
 
 import companies.models
+from parser.calculatePriceContract import calculate_price
 
 
 # Create your models here.
@@ -35,17 +36,71 @@ class TendersList(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.company_info:
-            # Если связанный объект CompanyInfo отсутствует, создаем его
-            company_info = companies.models.CompanyInfo(companyName=self.organizationName)
-            company_info.save()
-            self.company_info = company_info
+            # Ищем компанию по имени
+            existing_company = companies.models.CompanyInfo.objects.filter(companyName=self.organizationName).first()
+
+            if existing_company:
+                # Если компания существует, используем ее
+                self.company_info = existing_company
+            else:
+                # Если компания не существует, создаем новую
+                new_company_info = companies.models.CompanyInfo(companyName=self.organizationName)
+                new_company_info.save()
+                self.company_info = new_company_info
+
+        companies.models.CompanyInfo.update_likes_dislikes_by_company_name(self.organizationName, self.likes,
+                                                                           self.dislikes)
 
         super().save(*args, **kwargs)
-
-        self.company_info.likes = self.likes
-        self.company_info.dislikes = self.dislikes
-        self.company_info.save()
 
     def __str__(self):
         return self.tenderNum
 
+
+class ContractsList(models.Model):
+    tenderNum = models.BigIntegerField()
+    tenderName = models.CharField(max_length=500)
+
+    organizationName = models.CharField(max_length=500)
+    winnerName = models.CharField(max_length=500)
+    company_info = models.OneToOneField(
+        companies.models.CompanyInfo,
+        on_delete=models.CASCADE,
+        related_name="contracts_list",
+        null=True
+    )
+
+    dateContract = models.DateField()
+    contractNum = models.CharField(max_length=100)
+
+    lotsInfo = models.TextField()
+    pricesOnTender = models.TextField()
+    pricesOnContract = models.TextField()
+    totalPriceContract = models.BigIntegerField(null=True)
+
+    likes = models.PositiveIntegerField(default=0, null=True)
+    dislikes = models.PositiveIntegerField(default=0, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.company_info:
+            # Ищем компанию по имени
+            existing_company = companies.models.CompanyInfo.objects.filter(companyName=self.organizationName).first()
+
+            if existing_company:
+                # Если компания существует, используем ее
+                self.company_info = existing_company
+            else:
+                # Если компания не существует, создаем новую
+                new_company_info = companies.models.CompanyInfo(companyName=self.organizationName)
+                new_company_info.save()
+                self.company_info = new_company_info
+
+        self.totalPriceContract = calculate_price(self.pricesOnContract)
+
+        companies.models.CompanyInfo.update_likes_dislikes_by_company_name(self.organizationName, self.likes,
+                                                                           self.dislikes)
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.tenderNum
