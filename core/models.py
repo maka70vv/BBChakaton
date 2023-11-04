@@ -4,7 +4,7 @@ from django.utils import timezone
 from ckeditor_uploader.fields import RichTextUploadingField
 from taggit.managers import TaggableManager
 
-import companies.models
+from companies.models import CompanyInfo
 from core.calculatePriceContract import calculate_price
 
 
@@ -31,8 +31,8 @@ class TendersList(models.Model):
     srok = models.IntegerField()
 
     organizationName = models.CharField(max_length=500)
-    company_info = models.OneToOneField(
-        companies.models.CompanyInfo,
+    company_info = models.ForeignKey(
+        CompanyInfo,
         on_delete=models.CASCADE,
         related_name="tenders_list",
         null=True
@@ -61,19 +61,18 @@ class TendersList(models.Model):
             return
         if not self.company_info:
             # Ищем компанию по имени
-            company_info, created = companies.models.CompanyInfo.objects.get_or_create(
-                companyName=self.organizationName)
+            existing_company = CompanyInfo.objects.filter(companyName=self.organizationName).first()
 
-            # if existing_company:
-            #     # Если компания существует, используем ее
-            #     self.company_info = existing_company
-            # else:
-            #     # Если компания не существует, создаем новую
-            #     new_company_info = companies.models.CompanyInfo(companyName=self.organizationName)
-            #     new_company_info.save()
-            #     self.company_info = new_company_info
+            if existing_company:
+                # Если компания существует, используем ее
+                self.company_info = existing_company
+            else:
+                # Если компания не существует, создаем новую
+                new_company_info = CompanyInfo(companyName=self.organizationName)
+                new_company_info.save()
+                self.company_info = new_company_info
 
-        companies.models.CompanyInfo.update_likes_dislikes_by_company_name(self.organizationName, self.likes,
+        CompanyInfo.update_likes_dislikes_by_company_name(self.organizationName, self.likes,
                                                                            self.dislikes)
 
         super().save(*args, **kwargs)
@@ -89,7 +88,7 @@ class ContractsList(models.Model):
     organizationName = models.CharField(max_length=500)
     winnerName = models.CharField(max_length=500)
     company_info = models.OneToOneField(
-        companies.models.CompanyInfo,
+        CompanyInfo,
         on_delete=models.CASCADE,
         related_name="contracts_list",
         null=True
@@ -109,20 +108,20 @@ class ContractsList(models.Model):
     def save(self, *args, **kwargs):
         if not self.company_info:
             # Ищем компанию по имени
-            existing_company = companies.models.CompanyInfo.objects.filter(companyName=self.organizationName).first()
+            existing_company = CompanyInfo.objects.filter(companyName=self.organizationName).first()
 
             if existing_company:
                 # Если компания существует, используем ее
                 self.company_info = existing_company
             else:
                 # Если компания не существует, создаем новую
-                new_company_info = companies.models.CompanyInfo(companyName=self.organizationName)
+                new_company_info = CompanyInfo(companyName=self.organizationName)
                 new_company_info.save()
                 self.company_info = new_company_info
 
         self.totalPriceContract = calculate_price(self.pricesOnContract)
 
-        companies.models.CompanyInfo.update_likes_dislikes_by_company_name(self.organizationName, self.likes,
+        CompanyInfo.update_likes_dislikes_by_company_name(self.organizationName, self.likes,
                                                                            self.dislikes)
 
         super().save(*args, **kwargs)

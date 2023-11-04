@@ -10,6 +10,7 @@ class CompanyInfo(models.Model):
     def update_likes_dislikes(self, likes, dislikes):
         self.likes += likes
         self.dislikes += dislikes
+        self.rating = self.likes - self.dislikes
         self.save()
 
     @classmethod

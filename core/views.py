@@ -92,10 +92,16 @@ def dislike_tender(request, tender_id):
     return HttpResponse(status=200)
 
 
-class TendersListView(ListAPIView):
+class TendersListView(generics.ListAPIView):
     queryset = TendersList.objects.all()
     serializer_class = TenderSerializer
+    permission_classes = [permissions.AllowAny]
 
+
+class TenderDetailView(generics.RetrieveAPIView):
+    queryset = TendersList.objects.all()
+    serializer_class = TenderSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 class FeedBackView(APIView):
