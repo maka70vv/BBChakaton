@@ -1,12 +1,5 @@
 from django.contrib import admin
-from .models import Post, TendersList
-
-
-class PostAdmin(admin.ModelAdmin):
-    pass
-
-
-admin.site.register(Post, PostAdmin)
+from .models import TendersList, ContractsList
 
 
 class ParserAdmin(admin.ModelAdmin):
@@ -14,3 +7,4 @@ class ParserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(TendersList, ParserAdmin)
+admin.site.register(ContractsList, ParserAdmin)
