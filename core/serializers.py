@@ -65,10 +65,10 @@ class TenderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ContractsSerializer(serializers.ModelSerializer):
+class ContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContractsList
-        fields = '__all__'
+        fields = ['tenderNum', 'tenderName', 'winnerName', 'dateContract', 'contractNum', 'lotsInfo', 'pricesOnTender', 'pricesOnContract', 'likes', 'dislikes']
 
 
 class ContactSerailizer(serializers.Serializer):

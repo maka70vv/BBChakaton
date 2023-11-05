@@ -6,7 +6,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 
 from .serializers import PostSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer, \
-    TenderSerializer
+    TenderSerializer, ContractSerializer
 from .models import Post, TendersList, ContractsList
 from rest_framework.response import Response
 from rest_framework import pagination
@@ -115,9 +115,10 @@ class TendersListView(generics.ListAPIView):
 
 class ContractsListView(generics.ListAPIView):
     queryset = ContractsList.objects.all()
-    serializer_class = ContactSerailizer
+    serializer_class = ContractSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = PageNumberSetPagination
+
 
 
 class TenderDetailView(generics.RetrieveAPIView):

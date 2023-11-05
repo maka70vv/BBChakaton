@@ -119,8 +119,7 @@ class ContractsList(models.Model):
 
         # self.totalPriceContract = calculate_price(self.pricesOnContract)
 
-        CompanyInfo.update_likes_dislikes_by_company_name(self.winnerName, self.likes,
-                                                                           self.dislikes)
+        CompanyInfo.update_likes_dislikes_by_company_name(self.winnerName, self.likes, self.dislikes)
 
         super().save(*args, **kwargs)
 
