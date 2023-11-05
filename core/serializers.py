@@ -33,7 +33,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ("username", "first_name", "last_name")
 
 
 class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -68,7 +68,7 @@ class TenderSerializer(serializers.ModelSerializer):
 class ContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContractsList
-        fields = ['tenderNum', 'tenderName', 'winnerName', 'dateContract', 'contractNum', 'lotsInfo', 'pricesOnTender', 'pricesOnContract', 'likes', 'dislikes']
+        fields = '__all__'
 
 
 class ContactSerailizer(serializers.Serializer):
