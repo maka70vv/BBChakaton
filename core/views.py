@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from .serializers import PostSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer, \
     TenderSerializer
-from .models import Post, TendersList
+from .models import Post, TendersList, ContractsList
 from rest_framework.response import Response
 from rest_framework import pagination
 from rest_framework import generics
@@ -92,13 +92,41 @@ def dislike_tender(request, tender_id):
     return HttpResponse(status=200)
 
 
+def like_contract(request, tender_id):
+    contract = ContractsList.objects.get(pk=tender_id)
+    contract.likes += 1
+    contract.save()
+    return HttpResponse(status=200)
+
+
+def dislike_contract(request, tender_id):
+    contract = ContractsList.objects.get(pk=tender_id)
+    contract.dislikes += 1
+    contract.save()
+    return HttpResponse(status=200)
+
+
 class TendersListView(generics.ListAPIView):
+    queryset = TendersList.objects.all()
+    serializer_class = TenderSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = PageNumberSetPagination
+
+
+class ContractsListView(generics.ListAPIView):
+    queryset = ContractsList.objects.all()
+    serializer_class = ContactSerailizer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = PageNumberSetPagination
+
+
+class TenderDetailView(generics.RetrieveAPIView):
     queryset = TendersList.objects.all()
     serializer_class = TenderSerializer
     permission_classes = [permissions.AllowAny]
 
 
-class TenderDetailView(generics.RetrieveAPIView):
+class ContractsDetailView(generics.RetrieveAPIView):
     queryset = TendersList.objects.all()
     serializer_class = TenderSerializer
     permission_classes = [permissions.AllowAny]

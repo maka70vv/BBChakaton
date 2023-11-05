@@ -45,7 +45,7 @@ def parse_data():
                     )
                     tender_num = int(tender_num_element.text.strip())
                     if TendersList.objects.filter(tenderNum=tender_num).exists():
-                        browser.close()
+                        browser.quit()
                         return
 
                     tender_name_element = WebDriverWait(browser, 10).until(

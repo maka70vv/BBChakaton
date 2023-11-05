@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import PostViewSet, TagDetailView, TagView, AsideView, FeedBackView, RegisterView, ProfileView, \
-    TenderDetailView
+    TenderDetailView, ContractsListView, ContractsDetailView
 
 router = DefaultRouter()
 router.register('posts', PostViewSet, basename='posts')
@@ -21,4 +21,8 @@ urlpatterns = [
     path('tenders/<int:tender_id>/dislike_tender/', views.dislike_tender),
     path('tenders/', TendersListView.as_view()),
     path('tenders/<int:pk>/', TenderDetailView.as_view()),
+    path('contracts/<int:tender_id>/like_tender/', views.like_contract),
+    path('contracts/<int:tender_id>/dislike_tender/', views.dislike_contract),
+    path('contracts/', ContractsListView.as_view()),
+    path('contracts/<int:pk>/', ContractsDetailView.as_view()),
 ]

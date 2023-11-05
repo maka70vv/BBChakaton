@@ -5,7 +5,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from taggit.managers import TaggableManager
 
 from companies.models import CompanyInfo
-from core.calculatePriceContract import calculate_price
+# from core.calculatePriceContract import calculate_price
 
 
 class Post(models.Model):
@@ -85,9 +85,8 @@ class ContractsList(models.Model):
     tenderNum = models.BigIntegerField()
     tenderName = models.CharField(max_length=500)
 
-    organizationName = models.CharField(max_length=500)
     winnerName = models.CharField(max_length=500)
-    company_info = models.OneToOneField(
+    company_info = models.ForeignKey(
         CompanyInfo,
         on_delete=models.CASCADE,
         related_name="contracts_list",
@@ -100,7 +99,6 @@ class ContractsList(models.Model):
     lotsInfo = models.TextField()
     pricesOnTender = models.TextField()
     pricesOnContract = models.TextField()
-    totalPriceContract = models.BigIntegerField(null=True)
 
     likes = models.PositiveIntegerField(default=0, null=True)
     dislikes = models.PositiveIntegerField(default=0, null=True)
@@ -108,20 +106,20 @@ class ContractsList(models.Model):
     def save(self, *args, **kwargs):
         if not self.company_info:
             # Ищем компанию по имени
-            existing_company = CompanyInfo.objects.filter(companyName=self.organizationName).first()
+            existing_company = CompanyInfo.objects.filter(companyName=self.winnerName).first()
 
             if existing_company:
                 # Если компания существует, используем ее
                 self.company_info = existing_company
             else:
                 # Если компания не существует, создаем новую
-                new_company_info = CompanyInfo(companyName=self.organizationName)
+                new_company_info = CompanyInfo(companyName=self.winnerName)
                 new_company_info.save()
                 self.company_info = new_company_info
 
-        self.totalPriceContract = calculate_price(self.pricesOnContract)
+        # self.totalPriceContract = calculate_price(self.pricesOnContract)
 
-        CompanyInfo.update_likes_dislikes_by_company_name(self.organizationName, self.likes,
+        CompanyInfo.update_likes_dislikes_by_company_name(self.winnerName, self.likes,
                                                                            self.dislikes)
 
         super().save(*args, **kwargs)
